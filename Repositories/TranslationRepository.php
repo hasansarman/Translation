@@ -1,4 +1,6 @@
-<?php namespace Modules\Translation\Repositories;
+<?php
+
+namespace Modules\Translation\Repositories;
 
 use Modules\Core\Repositories\BaseRepository;
 use Modules\Translation\Entities\TranslationTranslation;
@@ -46,4 +48,6 @@ interface TranslationRepository extends BaseRepository
      * @return void
      */
     public function updateTranslationToValue(TranslationTranslation $translationTranslation, $value);
+
+    public function getTranslationsForGroupAndNamespace($locale, $group, $namespace);
 }

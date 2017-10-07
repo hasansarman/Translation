@@ -46,6 +46,7 @@ return [
         'available keyboard shortcuts' => 'Available keyboard shortcuts on this page',
         'view website' => 'View Website',
         'complete your profile' => 'Complete your profile',
+        'profile' => 'Profile',
         'sign out' => 'Sign out',
     ],
     'messages' => [
@@ -57,4 +58,15 @@ return [
     'back' => 'Back',
     'back to index' => 'Back to :name index',
     'permission denied' => 'Permission denied. (required permission: ":permission")',
+    'list resource' => 'List :name',
+    'create resource' => 'Create :name',
+    'edit resource' => 'Edit :name',
+    'destroy resource' => 'Delete :name',
+    'error token mismatch' => 'Your session timed out, please submit the form again.',
+    'error 404' => '404',
+    'error 404 title' => 'Oops! This page was not found.',
+    'error 404 description' => 'The page you are looking for was not found.',
+    'error 500' => '500',
+    'error 500 title' => 'Oops! Something went wrong',
+    'error 500 description' => 'An administrator was notified.',
 ];

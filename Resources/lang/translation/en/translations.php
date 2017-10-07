@@ -32,4 +32,9 @@ return [
     'event' => 'Event',
     'created' => 'Created',
     'edited' => 'Edited',
+    'revert history' => 'Revert History',
+    'list resource' => 'List translations',
+    'edit resource' => 'Edit translations',
+    'import resource' => 'Import translations',
+    'export resource' => 'Export translations',
 ];

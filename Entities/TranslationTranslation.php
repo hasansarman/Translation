@@ -1,4 +1,6 @@
-<?php namespace Modules\Translation\Entities;
+<?php
+
+namespace Modules\Translation\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 use Venturecraft\Revisionable\RevisionableTrait;
@@ -9,10 +11,11 @@ use Venturecraft\Revisionable\RevisionableTrait;
 class TranslationTranslation extends Model
 {
     use RevisionableTrait;
-    public $timestamps = false;
-    protected $fillable = ['value'];
-    protected $table = 'translation__translation_translations';
-
+   public $timestamps = false;
+    protected $fillable = ['VALUE'];
+    protected $table = 'translation_translations';
+protected $primaryKey="ID";
+      
     protected $revisionEnabled = true;
     protected $revisionCleanup = true;
     protected $historyLimit = 100;

@@ -1,4 +1,6 @@
-<?php namespace Modules\Translation\Importers;
+<?php
+
+namespace Modules\Translation\Importers;
 
 use League\Csv\Reader;
 use Modules\Translation\Repositories\TranslationRepository;
@@ -30,11 +32,11 @@ class TranslationsImporter
                 return true;
             }
 
-            $key = array_get($row, 'key');
+            $key = array_get($row, 'KEY');
             array_shift($row);
             $data = [];
             foreach ($row as $locale => $value) {
-                $data[$locale] = ['value' => $value];
+                $data[$locale] = ['VALUE' => $value];
             }
 
             $this->translation->updateFromImport($key, $data);

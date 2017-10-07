@@ -2,8 +2,9 @@
 
 return [
     'site-name' => 'Site name',
+    'site-name-mini' => 'Site name minimised',
     'site-description' => 'Site description',
     'template' => 'Front end template',
-    'google-analytics' => 'Google Analytics Code',
+    'analytics-script' => 'Analytics Script',
     'locales' => 'Site locales',
 ];

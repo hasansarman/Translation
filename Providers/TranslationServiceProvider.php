@@ -1,21 +1,27 @@
-<?php namespace Modules\Translation\Providers;
+<?php
 
+namespace Modules\Translation\Providers;
+
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Composers\CurrentUserViewComposer;
+use Modules\Core\Events\BuildingSidebar;
+use Modules\Core\Traits\CanGetSidebarClassForModule;
+use Modules\Core\Traits\CanPublishConfiguration;
 use Modules\Translation\Console\BuildTranslationsCacheCommand;
 use Modules\Translation\Entities\Translation;
+use Modules\Translation\Events\Handlers\RegisterTranslationSidebar;
 use Modules\Translation\Repositories\Cache\CacheTranslationDecorator;
 use Modules\Translation\Repositories\Eloquent\EloquentTranslationRepository;
 use Modules\Translation\Repositories\File\FileTranslationRepository as FileDiskTranslationRepository;
 use Modules\Translation\Repositories\FileTranslationRepository;
 use Modules\Translation\Repositories\TranslationRepository;
 use Modules\Translation\Services\TranslationLoader;
-use Modules\Translation\Services\Translator;
-use Schema;
 
 class TranslationServiceProvider extends ServiceProvider
 {
+    use CanPublishConfiguration, CanGetSidebarClassForModule;
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -34,11 +40,24 @@ class TranslationServiceProvider extends ServiceProvider
         $this->registerConsoleCommands();
 
         view()->composer('translation::admin.translations.index', CurrentUserViewComposer::class);
+
+        $this->app['events']->listen(
+            BuildingSidebar::class,
+            $this->getSidebarClassForModule('translation', RegisterTranslationSidebar::class)
+        );
     }
 
     public function boot()
     {
+        $this->publishConfig('translation', 'config');
+        $this->publishConfig('translation', 'permissions');
+
         $this->registerValidators();
+        $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
+
+        if ($this->app->runningInConsole() === true) {
+            return;
+        }
 
         if ($this->shouldRegisterCustomTranslator()) {
             $this->registerCustomTranslator();
@@ -55,7 +74,7 @@ class TranslationServiceProvider extends ServiceProvider
             return false;
         }
 
-        if (false === app('asgard.isInstalled')) {
+        if (false === env('INSTALLED', false)) {
             return false;
         }
 
@@ -81,10 +100,6 @@ class TranslationServiceProvider extends ServiceProvider
         $this->app->bind(TranslationRepository::class, function () {
             $repository = new EloquentTranslationRepository(new Translation());
 
-            if (! config('app.cache')) {
-                return $repository;
-            }
-
             return new CacheTranslationDecorator($repository);
         });
 
@@ -102,9 +117,6 @@ class TranslationServiceProvider extends ServiceProvider
 
     protected function registerCustomTranslator()
     {
-        $this->app->offsetUnset('translation.loader');
-        $this->app->offsetUnset('translator');
-
         $this->app->singleton('translation.loader', function ($app) {
             return new TranslationLoader($app['files'], $app['path.lang']);
         });
@@ -113,7 +125,7 @@ class TranslationServiceProvider extends ServiceProvider
 
             $locale = $app['config']['app.locale'];
 
-            $trans = new Translator($loader, $locale);
+            $trans = new \Illuminate\Translation\Translator($loader, $locale);
 
             $trans->setFallback($app['config']['app.fallback_locale']);
 

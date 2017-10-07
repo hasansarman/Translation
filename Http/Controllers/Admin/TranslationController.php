@@ -1,4 +1,6 @@
-<?php namespace Modules\Translation\Http\Controllers\Admin;
+<?php
+
+namespace Modules\Translation\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Modules\Core\Http\Controllers\Admin\AdminBaseController;
@@ -8,7 +10,7 @@ use Modules\Translation\Http\Requests\ImportTranslationsRequest;
 use Modules\Translation\Importers\TranslationsImporter;
 use Modules\Translation\Repositories\TranslationRepository;
 use Modules\Translation\Services\TranslationsService;
-use Pingpong\Modules\Facades\Module;
+use Nwidart\Modules\Facades\Module;
 
 class TranslationController extends AdminBaseController
 {
@@ -51,11 +53,7 @@ class TranslationController extends AdminBaseController
 
     public function export(TranslationsExporter $exporter)
     {
-        return response()->make($exporter->export(), [
-            "Content-Type" => "application/csv",
-            "Content-Disposition" => "attachment; filename=export_{$exporter->getFileName()}.csv",
-            "Pragma" => "no-cache"
-        ]);
+        return response()->csv($exporter->export(), $exporter->getFileName());
     }
 
     public function import(ImportTranslationsRequest $request, TranslationsImporter $importer)

@@ -26,10 +26,19 @@ return [
         'slug' => 'Role slug',
     ],
     'navigation' => [
-        'back to index' => 'Back to roles index'
+        'back to index' => 'Back to roles index',
     ],
     'select all' => 'Select all',
     'deselect all' => 'Deselect all',
-    'inherit' => 'Inherit from role',
     'swap' => 'Swap',
+    'allow all' => 'Allow all',
+    'deny all' => 'Deny all',
+    'inherit all' => 'Inherit all',
+    'allow' => 'Allow',
+    'deny' => 'Deny',
+    'inherit' => 'Inherit',
+    'list resource' => 'List roles',
+    'create resource' => 'Create roles',
+    'edit resource' => 'Edit roles',
+    'destroy resource' => 'Delete roles',
 ];

@@ -1,12 +1,18 @@
-<?php namespace Modules\Translation\Http\Controllers\Api;
+<?php
 
-use Illuminate\Database\Eloquent\Collection;
+namespace Modules\Translation\Http\Controllers\Api;
+
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Database\Eloquent\Collection;
+use Cartalyst\Sentinel\Laravel\Facades\Sentinel;
+use Modules\User\Traits\CanFindUserWithBearerToken;
+use Modules\Translation\Services\TranslationRevisions;
 use Modules\Translation\Repositories\TranslationRepository;
 
 class TranslationController extends Controller
 {
+    use CanFindUserWithBearerToken;
     /**
      * @var TranslationRepository
      */
@@ -19,10 +25,12 @@ class TranslationController extends Controller
 
     public function update(Request $request)
     {
+        Sentinel::login($this->findUserWithBearerToken($request->header('Authorization')));
+
         $this->translation->saveTranslationForLocaleAndKey(
-            $request->get('locale'),
-            $request->get('key'),
-            $request->get('value')
+            $request->get('LOCALE'),
+            $request->get('KEY'),
+            $request->get('VALUE')
         );
     }
 
@@ -31,63 +39,11 @@ class TranslationController extends Controller
         $this->translation->clearCache();
     }
 
-    public function revisions(Request $request)
+    public function revisions(TranslationRevisions $revisions, Request $request)
     {
-        $translation = $this->translation->findTranslationByKey($request->get('key'));
-        $translation = $translation->translate($request->get('locale'));
-
-        if (null === $translation) {
-            return response()->json(['<tr><td>' . trans('translation::translations.No Revisions yet') . '</td></tr>']);
-        }
-
-        return response()->json($this->formatRevisionHistory($translation->revisionHistory));
-    }
-
-    private function formatRevisionHistory(Collection $revisionHistory)
-    {
-        $formattedHistory = [];
-
-        foreach ($revisionHistory as $history) {
-            if ($history->key == 'created_at' && !$history->old_value) {
-                $formattedHistory[] = $this->getCreatedRevisionTemplate($history);
-            } else {
-                $formattedHistory[] = $this->getRevisionTemplate($history);
-            }
-        }
-
-        return array_reverse($formattedHistory);
-    }
-
-    private function getRevisionTemplate($history)
-    {
-        $timeAgo = $history->created_at->diffForHumans();
-        $revertRoute = route('admin.translation.translation.update', [$history->revisionable_id, 'oldValue' => $history->oldValue()]);
-        $edited = trans('translation::translations.edited');
-
-        return <<<HTML
-<tr>
-    <td>{$history->oldValue()}</td>
-    <td>{$history->userResponsible()->first_name} {$history->userResponsible()->last_name}</td>
-    <td>$edited</td>
-    <td><a data-toggle="tooltip" title="{$history->created_at}">{$timeAgo}</a></td>
-    <td><a href="{$revertRoute}"><i class="fa fa-history"></i></a></td>
-</tr>
-HTML;
-    }
-
-    private function getCreatedRevisionTemplate($history)
-    {
-        $timeAgo = $history->created_at->diffForHumans();
-        $created = trans('translation::translations.created');
-
-        return <<<HTML
-<tr>
-    <td></td>
-    <td>{$history->userResponsible()->first_name} {$history->userResponsible()->last_name}</td>
-    <td>$created</td>
-    <td><a data-toggle="tooltip" title="{$history->created_at}">{$timeAgo}</a></td>
-    <td></td>
-</tr>
-HTML;
+        return $revisions->get(
+            $request->get('KEY'),
+            $request->get('LOCALE')
+        );
     }
 }
